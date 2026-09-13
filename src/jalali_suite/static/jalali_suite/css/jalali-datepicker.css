@@ -1,0 +1,7 @@
+.jalali-suite-datepicker { background: #fff; border: 1px solid #b8b8b8; box-shadow: 0 3px 10px rgba(0,0,0,.18); direction: rtl; font-family: Vazirmatn, Tahoma, sans-serif; padding: .6rem; position: absolute; width: 18rem; z-index: 1000; }
+.jalali-suite-datepicker header, .jalali-suite-datepicker .week, .jalali-suite-datepicker .days { display: grid; gap: .2rem; grid-template-columns: repeat(7, 1fr); }
+.jalali-suite-datepicker header { align-items: center; grid-template-columns: auto 1fr auto; margin-bottom: .5rem; }
+.jalali-suite-datepicker button { background: transparent; border: 0; cursor: pointer; padding: .35rem; }
+.jalali-suite-datepicker strong { text-align: center; }
+.jalali-suite-datepicker .week { color: #666; font-size: .8rem; margin-bottom: .2rem; text-align: center; }
+.jalali-suite-datepicker .days button:hover, .jalali-suite-datepicker .days button:focus { background: #417690; color: #fff; }

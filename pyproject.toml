@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-jalali-suite"
+version = "1.0.0"
+description = "Django utilities for Jalali/Persian calendar conversion, formatting, and form/model integrations."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Omid Shojaee", email = "omid.shojaee@gmail.com" }]
+license = "MIT"
+keywords = ["django", "jalali", "persian", "date", "calendar", "iran"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Django",
+  "Framework :: Django :: 5.2",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Office/Business :: Scheduling",
+]
+dependencies = [
+  "Django>=5.2",
+  "jdatetime>=5.0.0",
+]
+
+[project.optional-dependencies]
+drf = ["djangorestframework>=3.15"]
+dev = [
+  "pytest>=8.0",
+  "pytest-django>=4.8",
+  "build>=1.2.0",
+  "twine>=5.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/omidshojaee/django-jalali-suite"
+Repository = "https://github.com/omidshojaee/django-jalali-suite"
+Issues = "https://github.com/omidshojaee/django-jalali-suite/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+jalali_suite = ["templates/**/*.html", "static/**/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+testpaths = ["tests"]
