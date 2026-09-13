@@ -57,6 +57,6 @@ where = ["src"]
 jalali_suite = ["templates/**/*.html", "static/**/*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 DJANGO_SETTINGS_MODULE = "tests.settings"
 testpaths = ["tests"]
