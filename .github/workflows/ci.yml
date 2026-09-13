@@ -34,7 +34,7 @@ jobs:
           pip install "django~=${{ matrix.django-version }}.0" pytest pytest-django
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e ".[drf]"
 
       - name: Run tests
         run: pytest tests/ -v
