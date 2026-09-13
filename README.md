@@ -35,6 +35,12 @@ cd django-jalali-suite
 python -m pip install -e .
 ```
 
+For Django REST Framework support, install the optional dependency:
+
+```bash
+python -m pip install django-jalali-suite[drf]
+```
+
 Add the package to `INSTALLED_APPS`:
 
 ```python
@@ -182,6 +188,24 @@ JALALI_SUITE = {
 
 Load template support with `{% load jalali_suite %}` and use the `jalali`,
 `jalali_digits`, and `jalali_now` filters/tags.
+
+## Django REST Framework
+
+Use `JalaliModelSerializer` to automatically represent
+`JalaliDateField` and `JalaliDateTimeField` values as Jalali ISO strings and
+accept Latin, Persian, or Arabic-Indic digits:
+
+```python
+from jalali_suite.serializers import JalaliModelSerializer
+
+class PersonSerializer(JalaliModelSerializer):
+    class Meta:
+        model = Person
+        fields = ("birthday", "created_at")
+```
+
+The lower-level `JalaliDateSerializerField` and
+`JalaliDateTimeSerializerField` are also available for custom serializers.
 
 ## Development
 

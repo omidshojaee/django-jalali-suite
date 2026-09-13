@@ -104,9 +104,19 @@ def to_jalali(
 
 def to_jalali_datetime(value: dt.datetime | str) -> JalaliDateTime:
     if isinstance(value, str):
-        value = dt.datetime.fromisoformat(
-            normalize_digits(value.strip()).replace("T", " ")
+        cleaned = normalize_digits(value.strip()).replace("T", " ")
+        match = re.fullmatch(
+            r"(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.(\d+))?",
+            cleaned,
         )
+        if match and int(match.group(1)) < 1700:
+            year, month, day, hour, minute = (
+                int(match.group(index)) for index in range(1, 6)
+            )
+            second = int(match.group(6) or 0)
+            microsecond = int((match.group(7) or "")[:6].ljust(6, "0") or 0)
+            return JalaliDateTime(year, month, day, hour, minute, second, microsecond)
+        value = dt.datetime.fromisoformat(cleaned)
     if not isinstance(value, dt.datetime):
         raise TypeError(f"Unsupported value type: {type(value)!r}")
     jvalue = JDateTime.fromgregorian(datetime=value)
