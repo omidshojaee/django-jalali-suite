@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import AdminDateWidget, AdminTimeWidget
 from django.forms.utils import to_current_timezone
 
-from .utils import JalaliDate, to_jalali, to_jalali_datetime
+from .utils import JalaliDate, JalaliDateTime, to_jalali, to_jalali_datetime
 
 
 class JalaliDateWidget(forms.DateInput):
@@ -33,6 +33,11 @@ class JalaliSplitDateTimeWidget(forms.MultiWidget):
     def decompress(self, value):
         if not value:
             return [None, None]
+        if isinstance(value, JalaliDateTime):
+            return [
+                f"{value.year:04d}-{value.month:02d}-{value.day:02d}",
+                value.to_datetime().time().replace(microsecond=0),
+            ]
         value = to_current_timezone(value)
         jvalue = to_jalali_datetime(value)
         return [

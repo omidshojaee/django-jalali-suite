@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from django import forms
 from django.contrib import admin
@@ -8,7 +8,7 @@ from jalali_suite.admin import JalaliDateAdminMixin
 from jalali_suite.forms import JalaliDateField, SplitJalaliDateTimeField
 from jalali_suite.models import JalaliDateField as ModelJalaliDateField
 from jalali_suite.models import JalaliDateTimeField as ModelJalaliDateTimeField
-from jalali_suite.utils import to_jalali
+from jalali_suite.utils import JalaliDateTime, to_jalali
 
 
 class DemoForm(forms.Form):
@@ -63,6 +63,17 @@ def test_admin_can_build_a_jalali_datetime_formfield():
 
     assert isinstance(formfield, SplitJalaliDateTimeField)
     assert formfield.widget.widgets[0].attrs["data-jalali-datepicker"] == "true"
+
+
+def test_admin_datetime_widget_decompresses_jalali_values():
+    model_field = DemoModel._meta.get_field("jalali_datetime")
+    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
+    formfield = admin_instance.formfield_for_dbfield(model_field, request=None)
+
+    assert formfield.widget.decompress(JalaliDateTime(1403, 1, 1, 12, 30)) == [
+        "1403-01-01",
+        datetime(2024, 3, 20, 12, 30).time(),
+    ]
 
 
 def test_model_field_converts_between_jalali_and_database_values():
