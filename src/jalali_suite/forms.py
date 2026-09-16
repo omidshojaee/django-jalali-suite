@@ -45,7 +45,9 @@ class JalaliDateField(forms.Field):
 
 
 class JalaliDateTimeField(forms.Field):
-    default_error_messages = {"invalid": "Enter a valid Jalali datetime."}
+    default_error_messages = {
+        "invalid": "Enter a valid Jalali datetime in YYYY-MM-DDTHH:MM[:SS] format."
+    }
 
     def to_python(self, value):
         if value in (None, ""):

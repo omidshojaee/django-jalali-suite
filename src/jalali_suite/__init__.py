@@ -1,6 +1,6 @@
 """Jalali calendar support for Django."""
 
-__version__ = "2.0.8"
+__version__ = "2.0.9"
 
 from .utils import (
     JalaliDate,

@@ -206,6 +206,8 @@ class PersonSerializer(JalaliModelSerializer):
 
 The lower-level `JalaliDateSerializerField` and
 `JalaliDateTimeSerializerField` are also available for custom serializers.
+Datetime inputs must include a time, for example `1403-01-01T12:30:00`;
+date-only values belong in `JalaliDateField`.
 
 ## Development
 

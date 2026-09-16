@@ -45,3 +45,12 @@ def test_model_serializer_represents_gregorian_values_as_jalali():
         "date": "1403-01-01",
         "timestamp": "1403-01-01T12:30:00",
     }
+
+
+def test_model_serializer_rejects_date_only_datetime_input():
+    serializer = ApiRecordSerializer(
+        data={"date": "1405-06-19", "timestamp": "1405-06-19"}
+    )
+
+    assert not serializer.is_valid()
+    assert "valid Jalali datetime" in str(serializer.errors["timestamp"])

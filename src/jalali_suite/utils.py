@@ -105,6 +105,10 @@ def to_jalali(
 def to_jalali_datetime(value: dt.datetime | str) -> JalaliDateTime:
     if isinstance(value, str):
         cleaned = normalize_digits(value.strip()).replace("T", " ")
+        if re.fullmatch(r"\d{4}-\d{1,2}-\d{1,2}", cleaned):
+            raise ValueError(
+                "A Jalali datetime must include a time in YYYY-MM-DDTHH:MM[:SS] format."
+            )
         match = re.fullmatch(
             r"(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.(\d+))?",
             cleaned,

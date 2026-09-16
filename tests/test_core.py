@@ -1,11 +1,14 @@
 from datetime import date
 
+import pytest
+
 from jalali_suite import (
     JalaliDate,
     format_jalali,
     to_farsi_digits,
     to_gregorian,
     to_jalali,
+    to_jalali_datetime,
 )
 
 
@@ -38,3 +41,8 @@ def test_to_jalali_accepts_farsi_digits():
 def test_format_jalali_supports_farsi_digits():
     assert format_jalali(date(2024, 3, 20), digits="farsi") == "۱۴۰۳/۰۱/۰۱"
     assert to_farsi_digits("1403-01-01") == "۱۴۰۳-۰۱-۰۱"
+
+
+def test_datetime_parser_rejects_date_only_input():
+    with pytest.raises(ValueError, match="must include a time"):
+        to_jalali_datetime("1405-06-19")
