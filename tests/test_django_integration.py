@@ -3,6 +3,7 @@ from datetime import date, datetime
 from django import forms
 from django.contrib import admin
 from django.db import models
+from django.test import override_settings
 
 from jalali_suite.admin import JalaliDateAdminMixin
 from jalali_suite.forms import JalaliDateField, SplitJalaliDateTimeField
@@ -34,7 +35,7 @@ def test_form_rejects_invalid_date():
 
 
 class DemoAdmin(JalaliDateAdminMixin, admin.ModelAdmin):
-    pass
+    list_display = ("jalali_date", "jalali_datetime")
 
 
 class DemoModel(models.Model):
@@ -101,3 +102,29 @@ def test_model_field_converts_between_jalali_and_database_values():
 
     assert model_field.get_prep_value(value).isoformat() == "2024-03-20"
     assert model_field.to_python(date(2024, 3, 20)) == value
+
+
+def test_admin_list_display_uses_gregorian_values_when_auto_conversion_is_disabled():
+    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
+    instance = DemoModel(
+        jalali_date=to_jalali("1403-01-01"),
+        jalali_datetime=JalaliDateTime(1403, 1, 1, 12, 30),
+    )
+
+    with override_settings(JALALI_SUITE={"ADMIN_AUTO_CONVERT_LIST_DISPLAY": False}):
+        fields = admin_instance.get_list_display(request=None)
+
+    assert fields == ["get_gregorian_jalali_date", "get_gregorian_jalali_datetime"]
+    assert getattr(admin_instance, fields[0])(instance) == date(2024, 3, 20)
+    assert getattr(admin_instance, fields[1])(instance) == datetime(2024, 3, 20, 12, 30)
+
+
+def test_admin_list_display_uses_jalali_format_when_auto_conversion_is_enabled():
+    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
+    instance = DemoModel(jalali_date=to_jalali("1403-01-01"))
+
+    with override_settings(JALALI_SUITE={"ADMIN_AUTO_CONVERT_LIST_DISPLAY": True}):
+        fields = admin_instance.get_list_display(request=None)
+
+    assert fields == ["get_jalali_jalali_date", "get_jalali_jalali_datetime"]
+    assert getattr(admin_instance, fields[0])(instance) == "1403/01/01"

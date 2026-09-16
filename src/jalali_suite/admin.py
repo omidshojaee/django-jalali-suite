@@ -8,7 +8,7 @@ from .forms import JalaliDateField
 from .models import JalaliDateField as ModelJalaliDateField
 from .models import JalaliDateTimeField
 from .settings import jalali_settings
-from .utils import format_jalali, to_gregorian
+from .utils import format_jalali
 from .widgets import AdminJalaliDateWidget, AdminJalaliSplitDateTimeWidget
 
 
@@ -63,21 +63,35 @@ class JalaliDateAdminMixin:
 
     def get_list_display(self, request):
         fields = list(super().get_list_display(request))
-        if not jalali_settings.get("ADMIN_AUTO_CONVERT_LIST_DISPLAY"):
-            return fields
+        use_jalali_display = jalali_settings.get("ADMIN_AUTO_CONVERT_LIST_DISPLAY")
         for index, name in enumerate(fields):
             try:
                 field = self.opts.get_field(name)
             except (FieldDoesNotExist, TypeError):
                 continue
             if isinstance(field, (ModelJalaliDateField, JalaliDateTimeField)):
-                method_name = f"get_jalali_{name}"
+                display_kind = "jalali" if use_jalali_display else "gregorian"
+                method_name = f"get_{display_kind}_{name}"
+                is_date_field = isinstance(field, ModelJalaliDateField)
+
+                def display_value(
+                    obj,
+                    field_name=name,
+                    as_jalali=use_jalali_display,
+                    is_date=is_date_field,
+                ):
+                    value = getattr(obj, field_name)
+                    if value is None:
+                        return None
+                    if as_jalali:
+                        return format_jalali(value)
+                    return value.to_gregorian() if is_date else value.to_datetime()
+
+                display_value.short_description = field.verbose_name
                 setattr(
                     self,
                     method_name,
-                    lambda obj, field_name=name: format_jalali(
-                        getattr(obj, field_name)
-                    ),
+                    display_value,
                 )
                 fields[index] = method_name
         return fields
