@@ -9,6 +9,7 @@ from jalali_suite.forms import JalaliDateField, SplitJalaliDateTimeField
 from jalali_suite.models import JalaliDateField as ModelJalaliDateField
 from jalali_suite.models import JalaliDateTimeField as ModelJalaliDateTimeField
 from jalali_suite.utils import JalaliDateTime, to_jalali
+from jalali_suite.widgets import JalaliSplitDateTimeWidget
 
 
 class DemoForm(forms.Form):
@@ -76,12 +77,8 @@ def test_admin_datetime_widget_decompresses_jalali_values():
     ]
 
 
-def test_admin_datetime_widget_renders_its_subwidgets():
-    model_field = DemoModel._meta.get_field("jalali_datetime")
-    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
-    formfield = admin_instance.formfield_for_dbfield(model_field, request=None)
-
-    rendered = formfield.widget.render(
+def test_datetime_widget_renders_its_subwidgets():
+    rendered = JalaliSplitDateTimeWidget().render(
         "jalali_datetime", JalaliDateTime(1403, 1, 1, 12, 30)
     )
 

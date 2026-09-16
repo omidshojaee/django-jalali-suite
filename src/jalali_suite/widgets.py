@@ -26,9 +26,11 @@ class AdminJalaliDateWidget(JalaliDateWidget, AdminDateWidget):
 
 class JalaliSplitDateTimeWidget(forms.MultiWidget):
     template_name = "jalali_suite/widgets/jalali_split_datetime.html"
+    date_widget_class = JalaliDateWidget
+    time_widget_class = forms.TimeInput
 
     def __init__(self, attrs=None):
-        super().__init__((JalaliDateWidget, AdminTimeWidget), attrs)
+        super().__init__((self.date_widget_class, self.time_widget_class), attrs)
 
     def decompress(self, value):
         if not value:
@@ -47,4 +49,5 @@ class JalaliSplitDateTimeWidget(forms.MultiWidget):
 
 
 class AdminJalaliSplitDateTimeWidget(JalaliSplitDateTimeWidget):
-    pass
+    date_widget_class = AdminJalaliDateWidget
+    time_widget_class = AdminTimeWidget
