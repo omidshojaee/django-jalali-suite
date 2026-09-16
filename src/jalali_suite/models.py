@@ -24,7 +24,11 @@ class JalaliDateField(models.DateField):
         return value
 
     def formfield(self, **kwargs):
-        return super().formfield(form_class=JalaliDateFormField, **kwargs)
+        # Django's ModelAdmin may provide ``form_class`` through its
+        # ``formfield_overrides``. Replace that generic class before passing
+        # the keyword arguments on so the Jalali parser remains in use.
+        kwargs["form_class"] = JalaliDateFormField
+        return super().formfield(**kwargs)
 
 
 class JalaliDateTimeField(models.DateTimeField):
@@ -48,4 +52,8 @@ class JalaliDateTimeField(models.DateTimeField):
         return value
 
     def formfield(self, **kwargs):
-        return super().formfield(form_class=SplitJalaliDateTimeField, **kwargs)
+        # ModelAdmin supplies a default form_class for DateTimeField.
+        # Replace that generic class before passing the keyword arguments on
+        # so the Jalali split parser remains in use.
+        kwargs["form_class"] = SplitJalaliDateTimeField
+        return super().formfield(**kwargs)

@@ -5,8 +5,9 @@ from django.contrib import admin
 from django.db import models
 
 from jalali_suite.admin import JalaliDateAdminMixin
-from jalali_suite.forms import JalaliDateField
+from jalali_suite.forms import JalaliDateField, SplitJalaliDateTimeField
 from jalali_suite.models import JalaliDateField as ModelJalaliDateField
+from jalali_suite.models import JalaliDateTimeField as ModelJalaliDateTimeField
 from jalali_suite.utils import to_jalali
 
 
@@ -37,6 +38,7 @@ class DemoAdmin(JalaliDateAdminMixin, admin.ModelAdmin):
 
 class DemoModel(models.Model):
     jalali_date = ModelJalaliDateField()
+    jalali_datetime = ModelJalaliDateTimeField()
 
     class Meta:
         app_label = "test_django_integration"
@@ -51,6 +53,16 @@ def test_admin_mixin_adds_jalali_widget_and_media():
     assert formfield.widget.attrs["data-jalali-datepicker"] == "true"
     assert "jalali_suite/js/jalali-datepicker.js" in admin_instance.media._js
     assert "jalali_suite/css/jalali-datepicker.css" in admin_instance.media._css["all"]
+
+
+def test_admin_can_build_a_jalali_datetime_formfield():
+    model_field = DemoModel._meta.get_field("jalali_datetime")
+    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
+
+    formfield = admin_instance.formfield_for_dbfield(model_field, request=None)
+
+    assert isinstance(formfield, SplitJalaliDateTimeField)
+    assert formfield.widget.widgets[0].attrs["data-jalali-datepicker"] == "true"
 
 
 def test_model_field_converts_between_jalali_and_database_values():
