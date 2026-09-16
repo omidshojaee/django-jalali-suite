@@ -1,7 +1,12 @@
 @font-face {
-  font-family: Vazirmatn;
+  font-family: "Vazirmatn";
   src: url("../fonts/Vazirmatn-Regular.woff2") format("woff2");
   font-display: swap;
   font-style: normal;
   font-weight: 400;
+}
+
+.jalali-suite-date,
+.jalali-suite-datepicker {
+  font-family: "Vazirmatn", Tahoma, sans-serif;
 }

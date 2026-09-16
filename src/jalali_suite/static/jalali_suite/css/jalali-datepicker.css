@@ -1,7 +1,17 @@
-.jalali-suite-datepicker { background: #fff; border: 1px solid #b8b8b8; box-shadow: 0 3px 10px rgba(0,0,0,.18); direction: rtl; font-family: Vazirmatn, Tahoma, sans-serif; padding: .6rem; position: absolute; width: 18rem; z-index: 1000; }
-.jalali-suite-datepicker header, .jalali-suite-datepicker .week, .jalali-suite-datepicker .days { display: grid; gap: .2rem; grid-template-columns: repeat(7, 1fr); }
-.jalali-suite-datepicker header { align-items: center; grid-template-columns: auto 1fr auto; margin-bottom: .5rem; }
-.jalali-suite-datepicker button { background: transparent; border: 0; cursor: pointer; padding: .35rem; }
-.jalali-suite-datepicker strong { text-align: center; }
-.jalali-suite-datepicker .week { color: #666; font-size: .8rem; margin-bottom: .2rem; text-align: center; }
-.jalali-suite-datepicker .days button:hover, .jalali-suite-datepicker .days button:focus { background: #417690; color: #fff; }
+.jalali-suite-datepicker { background: #fff; border: 1px solid #d7d7d7; border-radius: .5rem; box-shadow: 0 .25rem .9rem rgba(0, 0, 0, .18); box-sizing: border-box; color: #242424; direction: rtl; font-family: "Vazirmatn", Tahoma, sans-serif; padding: 0; position: absolute; width: 19rem; z-index: 1000; }
+.jalali-suite-datepicker__header { align-items: center; border-bottom: 1px solid #e2e2e2; display: grid; gap: .5rem; grid-template-columns: 1fr 1fr; padding: .65rem; }
+.jalali-suite-datepicker__control { align-items: center; display: flex; gap: .35rem; justify-content: space-between; white-space: nowrap; }
+.jalali-suite-datepicker button { background: #fff; border: 1px solid transparent; border-radius: .35rem; color: inherit; cursor: pointer; font: inherit; line-height: 1; padding: .45rem; }
+.jalali-suite-datepicker__control button { border-color: #dfdfdf; font-size: 1.25rem; min-width: 2rem; }
+.jalali-suite-datepicker button:hover, .jalali-suite-datepicker button:focus-visible { border-color: #2f80d8; outline: 0; }
+.jalali-suite-datepicker__week, .jalali-suite-datepicker__days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.jalali-suite-datepicker__week { background: #f1f2f2; font-weight: 700; padding: .65rem .35rem; }
+.jalali-suite-datepicker__week span:last-child { color: #d9534f; }
+.jalali-suite-datepicker__days { gap: .15rem; padding: .45rem; }
+.jalali-suite-datepicker__days button { aspect-ratio: 1; padding: 0; }
+.jalali-suite-datepicker__days .is-today { border-color: #bdbdbd; }
+.jalali-suite-datepicker__days .is-selected { background: #e7e7e7; font-weight: 700; }
+.jalali-suite-datepicker__days button:hover, .jalali-suite-datepicker__days button:focus-visible { background: #2f80d8; color: #fff; }
+.jalali-suite-datepicker footer { display: flex; justify-content: space-between; padding: .45rem .65rem .65rem; }
+.jalali-suite-datepicker footer button { background: #2f80d8; color: #fff; padding: .55rem .8rem; }
+.jalali-suite-datepicker footer button:hover, .jalali-suite-datepicker footer button:focus-visible { background: #1f67b4; border-color: #1f67b4; }

@@ -56,6 +56,14 @@ def test_admin_mixin_adds_jalali_widget_and_media():
     assert "jalali_suite/css/jalali-datepicker.css" in admin_instance.media._css["all"]
 
 
+def test_jalali_date_widget_declares_its_required_media():
+    media = JalaliDateField().widget.media
+
+    assert "jalali_suite/css/vazirmatn.css" in media._css["all"]
+    assert "jalali_suite/css/jalali-datepicker.css" in media._css["all"]
+    assert "jalali_suite/js/jalali-datepicker.js" in media._js
+
+
 def test_admin_can_build_a_jalali_datetime_formfield():
     model_field = DemoModel._meta.get_field("jalali_datetime")
     admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)

@@ -9,6 +9,15 @@ class JalaliDateWidget(forms.DateInput):
     input_type = "text"
     template_name = "jalali_suite/widgets/jalali_date.html"
 
+    class Media:
+        css = {
+            "all": (
+                "jalali_suite/css/vazirmatn.css",
+                "jalali_suite/css/jalali-datepicker.css",
+            )
+        }
+        js = ("jalali_suite/js/jalali-datepicker.js",)
+
     def __init__(self, attrs=None, format=None):
         final_attrs = {"class": "jalali-suite-date", "data-jalali-datepicker": "true"}
         final_attrs.update(attrs or {})

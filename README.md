@@ -82,7 +82,7 @@ class ExampleForm(forms.Form):
     birthday = JalaliDateField()
 ```
 
-This converts values from Gregorian ISO strings into Jalali date objects when cleaning form data.
+This converts values from Gregorian ISO strings into Jalali date objects when cleaning form data. Render `{{ form.media }}` in the page `<head>` to load the datepicker assets and bundled Vazirmatn font.
 
 ### Models
 
