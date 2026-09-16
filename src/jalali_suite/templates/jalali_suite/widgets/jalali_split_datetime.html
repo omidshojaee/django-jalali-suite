@@ -1,4 +1,5 @@
 <p class="datetime">
-  <span>{{ widget.subwidgets.0 }}</span>
-  <span>{{ widget.subwidgets.1 }}</span>
+  {% for widget in widget.subwidgets %}
+    <span>{% include widget.template_name %}</span>
+  {% endfor %}
 </p>

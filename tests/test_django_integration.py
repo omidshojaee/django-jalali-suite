@@ -76,6 +76,20 @@ def test_admin_datetime_widget_decompresses_jalali_values():
     ]
 
 
+def test_admin_datetime_widget_renders_its_subwidgets():
+    model_field = DemoModel._meta.get_field("jalali_datetime")
+    admin_instance = DemoAdmin(model=DemoModel, admin_site=admin.site)
+    formfield = admin_instance.formfield_for_dbfield(model_field, request=None)
+
+    rendered = formfield.widget.render(
+        "jalali_datetime", JalaliDateTime(1403, 1, 1, 12, 30)
+    )
+
+    assert 'name="jalali_datetime_0"' in rendered
+    assert 'name="jalali_datetime_1"' in rendered
+    assert "{'name':" not in rendered
+
+
 def test_model_field_converts_between_jalali_and_database_values():
     model_field = DemoModel._meta.get_field("jalali_date")
     value = to_jalali("1403-01-01")
