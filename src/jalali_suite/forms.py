@@ -11,7 +11,7 @@ from .utils import (
     to_jalali,
     to_jalali_datetime,
 )
-from .widgets import JalaliDateWidget, JalaliSplitDateTimeWidget
+from .widgets import JalaliDateWidget, JalaliSplitDateTimeWidget, JalaliTimeWidget
 
 
 class JalaliDateField(forms.Field):
@@ -60,13 +60,22 @@ class JalaliDateTimeField(forms.Field):
             raise forms.ValidationError(self.error_messages["invalid"], code="invalid")
 
 
+class JalaliTimeField(forms.TimeField):
+    widget = JalaliTimeWidget
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = normalize_digits(value)
+        return super().to_python(value)
+
+
 class SplitJalaliDateTimeField(forms.MultiValueField):
     widget = JalaliSplitDateTimeWidget
 
     def __init__(self, *, require_all_fields=True, **kwargs):
         fields = (
             JalaliDateField(required=require_all_fields),
-            forms.TimeField(required=require_all_fields),
+            JalaliTimeField(required=require_all_fields),
         )
         super().__init__(fields=fields, require_all_fields=require_all_fields, **kwargs)
 

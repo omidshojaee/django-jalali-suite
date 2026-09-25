@@ -171,7 +171,10 @@ Converts Jalali year/month/day to a Gregorian `date` value.
 
 ### `format_jalali(value, fmt="%Y/%m/%d")`
 
-Formats a date-like input in Jalali format using a strftime-style token set. Pass `digits="farsi"` when the output should use Persian digits.
+Formats a date-like input in Jalali format using a strftime-style token set.
+Digits are Persian when the active Django language is Farsi (`get_language()`
+starts with `"fa"`) and Latin otherwise; pass `digits="farsi"` or
+`digits="latin"` to override this for a single call.
 
 ## Configuration
 
@@ -179,12 +182,13 @@ Override project behavior with `JALALI_SUITE`:
 
 ```python
 JALALI_SUITE = {
-    "DIGITS": "farsi",  # "latin" or "farsi"
     "DATE_FORMAT": "%Y/%m/%d",
     "DATETIME_FORMAT": "%Y/%m/%d %H:%M:%S",
-    "ADMIN_AUTO_CONVERT_LIST_DISPLAY": False,
 }
 ```
+
+Admin `list_display` for Jalali fields, and the datepicker widget's digits,
+follow the active site language automatically — no separate setting needed.
 
 Load template support with `{% load jalali_suite %}` and use the `jalali`,
 `jalali_digits`, and `jalali_now` filters/tags.

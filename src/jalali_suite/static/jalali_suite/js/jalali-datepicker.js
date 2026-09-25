@@ -5,7 +5,9 @@
   var digits = "۰۱۲۳۴۵۶۷۸۹";
   function fa(value) { return String(value).replace(/\d/g, function (digit) { return digits[Number(digit)]; }); }
   function normalize(value) { return String(value || "").replace(/[۰-۹٠-٩]/g, function (digit) { var i = digits.indexOf(digit); return i < 0 ? "٠١٢٣٤٥٦٧٨٩".indexOf(digit) : i; }); }
-  function days(year, month) { return month < 7 ? 31 : month < 12 ? 30 : ((year + 1) % 33 < 8 ? 30 : 29); }
+  var leapYears = [1, 5, 9, 13, 17, 22, 26, 30];
+  function isLeap(year) { return leapYears.indexOf(((year % 33) + 33) % 33) !== -1; }
+  function days(year, month) { return month < 7 ? 31 : month < 12 ? 30 : (isLeap(year) ? 30 : 29); }
   function parse(value) { var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalize(value)); return match ? { year: +match[1], month: +match[2], day: +match[3] } : null; }
   function format(value) { return value.year.toString().padStart(4, "0") + "-" + value.month.toString().padStart(2, "0") + "-" + value.day.toString().padStart(2, "0"); }
   function sameDate(left, right) { return left && right && left.year === right.year && left.month === right.month && left.day === right.day; }
@@ -26,6 +28,7 @@
   }
   function attach(input) {
     var selected = parse(input.value), current = today(), state = selected || current;
+    function display(value) { return input.getAttribute("data-digits") === "farsi" ? fa(value) : String(value); }
     var picker = document.createElement("div");
     picker.className = "jalali-suite-datepicker";
     picker.hidden = true;
@@ -34,25 +37,26 @@
     function changeMonth(step) { state.month += step; if (state.month === 0) { state.month = 12; state.year--; } if (state.month === 13) { state.month = 1; state.year++; } }
     function render() {
       var day, leading = weekday(state.year, state.month, 1);
-      var html = '<header class="jalali-suite-datepicker__header"><div class="jalali-suite-datepicker__control"><button type="button" data-year="-1" aria-label="سال قبل">−</button><strong>' + fa(state.year) + '</strong><button type="button" data-year="1" aria-label="سال بعد">+</button></div><div class="jalali-suite-datepicker__control"><button type="button" data-month="-1" aria-label="ماه قبل">−</button><strong>' + months[state.month - 1] + '</strong><button type="button" data-month="1" aria-label="ماه بعد">+</button></div></header><div class="jalali-suite-datepicker__week">' + weekdays.map(function (name) { return "<span>" + name + "</span>"; }).join("") + '</div><div class="jalali-suite-datepicker__days">';
+      var html = '<header class="jalali-suite-datepicker__header"><div class="jalali-suite-datepicker__control"><button type="button" data-year="-1" aria-label="سال قبل">−</button><strong>' + display(state.year) + '</strong><button type="button" data-year="1" aria-label="سال بعد">+</button></div><div class="jalali-suite-datepicker__control"><button type="button" data-month="-1" aria-label="ماه قبل">−</button><strong>' + months[state.month - 1] + '</strong><button type="button" data-month="1" aria-label="ماه بعد">+</button></div></header><div class="jalali-suite-datepicker__week">' + weekdays.map(function (name) { return "<span>" + name + "</span>"; }).join("") + '</div><div class="jalali-suite-datepicker__days">';
       for (day = 0; day < leading; day++) html += '<span class="jalali-suite-datepicker__blank"></span>';
       for (day = 1; day <= days(state.year, state.month); day++) {
         var candidate = { year: state.year, month: state.month, day: day }, classes = "";
         if (sameDate(candidate, current)) classes += " is-today";
         if (sameDate(candidate, selected)) classes += " is-selected";
-        html += '<button type="button" data-day="' + day + '" class="' + classes.trim() + '">' + fa(day) + "</button>";
+        html += '<button type="button" data-day="' + day + '" class="' + classes.trim() + '">' + display(day) + "</button>";
       }
       picker.innerHTML = html + '</div><footer><button type="button" data-clear="true">خالی</button><button type="button" data-today="true">امروز</button></footer>';
     }
     function position() { var rect = input.getBoundingClientRect(); picker.style.left = (window.scrollX + rect.left) + "px"; picker.style.top = (window.scrollY + rect.bottom + 4) + "px"; }
     function open() { selected = parse(input.value); state = selected || today(); picker.hidden = false; position(); render(); }
-    function setValue(value) { selected = value; input.value = value ? fa(format(value)) : ""; input.dispatchEvent(new Event("change", { bubbles: true })); picker.hidden = true; }
+    function setValue(value) { selected = value; input.value = value ? display(format(value)) : ""; input.dispatchEvent(new Event("change", { bubbles: true })); picker.hidden = true; }
     input.addEventListener("focus", open);
     input.addEventListener("click", open);
     input.addEventListener("keydown", function (event) { if (event.key === "Escape") picker.hidden = true; });
     window.addEventListener("resize", function () { if (!picker.hidden) position(); });
     window.addEventListener("scroll", function () { if (!picker.hidden) position(); }, true);
     picker.addEventListener("click", function (event) {
+      event.stopPropagation();
       var target = event.target, day = target.getAttribute("data-day"), month = target.getAttribute("data-month"), year = target.getAttribute("data-year");
       if (month) { changeMonth(+month); render(); }
       else if (year) { state.year += +year; render(); }
@@ -62,5 +66,23 @@
     });
     document.addEventListener("click", function (event) { if (event.target !== input && !picker.contains(event.target)) picker.hidden = true; });
   }
-  document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll("input[data-jalali-datepicker]").forEach(attach); });
+  // Django's own admin shortcuts (the time field's "Now"/quick-hour links)
+  // set .value directly with Latin digits, bypassing our widgets entirely.
+  // Redefining the property lets us convert digits regardless of who sets
+  // it, without touching keyboard typing (which never goes through this
+  // setter).
+  function patchNativeValueSetter(input) {
+    if (input.getAttribute("data-digits") !== "farsi") return;
+    var descriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value");
+    Object.defineProperty(input, "value", {
+      configurable: true,
+      enumerable: true,
+      get: function () { return descriptor.get.call(this); },
+      set: function (value) { descriptor.set.call(this, typeof value === "string" ? fa(value) : value); },
+    });
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("input[data-jalali-datepicker]").forEach(attach);
+    document.querySelectorAll("input[data-digits]:not([data-jalali-datepicker])").forEach(patchNativeValueSetter);
+  });
 }());

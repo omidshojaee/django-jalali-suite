@@ -2,10 +2,8 @@ from django.conf import settings
 from django.core.signals import setting_changed
 
 DEFAULTS = {
-    "DIGITS": "latin",
     "DATE_FORMAT": "%Y/%m/%d",
     "DATETIME_FORMAT": "%Y/%m/%d %H:%M:%S",
-    "ADMIN_AUTO_CONVERT_LIST_DISPLAY": False,
 }
 
 

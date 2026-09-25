@@ -2,8 +2,7 @@ from datetime import date, datetime
 
 from django import template
 
-from ..settings import jalali_settings
-from ..utils import format_jalali
+from ..utils import JalaliDate, JalaliDateTime, format_jalali
 
 register = template.Library()
 
@@ -19,7 +18,7 @@ def jalali(value, fmt=None):
 def jalali_digits(value, digits=None):
     if value in (None, ""):
         return "-"
-    return format_jalali(value, digits=digits or jalali_settings.get("DIGITS"))
+    return format_jalali(value, digits=digits)
 
 
 @register.simple_tag
@@ -29,6 +28,8 @@ def jalali_now(fmt=None):
 
 @register.simple_tag
 def jalali_date(value, fmt=None, digits=None):
-    if value in (None, "") or not isinstance(value, (date, datetime)):
+    if value in (None, "") or not isinstance(
+        value, (date, datetime, JalaliDate, JalaliDateTime)
+    ):
         return "-"
     return format_jalali(value, fmt, digits)

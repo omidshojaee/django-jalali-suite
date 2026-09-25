@@ -4,6 +4,8 @@ import datetime as dt
 import re
 from dataclasses import dataclass
 
+from django.utils.translation import get_language
+from jdatetime import FA_LOCALE
 from jdatetime import date as JDate
 from jdatetime import datetime as JDateTime
 
@@ -18,6 +20,11 @@ def normalize_digits(value: str) -> str:
 
 def to_farsi_digits(value: str | int) -> str:
     return str(value).translate(_LATIN_TO_PERSIAN_DIGITS)
+
+
+def uses_farsi_digits() -> bool:
+    """Whether the active Django language calls for Farsi numerals."""
+    return (get_language() or "").startswith("fa")
 
 
 @dataclass(frozen=True)
@@ -142,7 +149,10 @@ def to_gregorian(year: int, month: int = 1, day: int = 1) -> dt.date:
 def format_jalali(value, fmt: str | None = None, digits: str | None = None) -> str:
     from .settings import jalali_settings
 
-    digits = digits or jalali_settings.get("DIGITS")
+    digits = digits or ("farsi" if uses_farsi_digits() else "latin")
+    if digits not in ("latin", "farsi"):
+        raise ValueError("digits must be 'latin' or 'farsi'")
+
     if isinstance(value, (dt.datetime, JalaliDateTime)):
         fmt = fmt or jalali_settings.get("DATETIME_FORMAT")
         jalali = (
@@ -150,28 +160,20 @@ def format_jalali(value, fmt: str | None = None, digits: str | None = None) -> s
             if not isinstance(value, JalaliDateTime)
             else value
         )
-        result = fmt.replace("%Y", f"{jalali.year:04d}").replace(
-            "%y", f"{jalali.year % 100:02d}"
-        )
-        result = result.replace("%m", f"{jalali.month:02d}").replace(
-            "%d", f"{jalali.day:02d}"
-        )
-        result = (
-            result.replace("%H", f"{jalali.hour:02d}")
-            .replace("%M", f"{jalali.minute:02d}")
-            .replace("%S", f"{jalali.second:02d}")
+        jd = JDateTime(
+            jalali.year,
+            jalali.month,
+            jalali.day,
+            jalali.hour,
+            jalali.minute,
+            jalali.second,
+            jalali.microsecond,
+            locale=FA_LOCALE,
         )
     else:
         fmt = fmt or jalali_settings.get("DATE_FORMAT")
         jalali = to_jalali(value)
-        result = fmt.replace("%Y", f"{jalali.year:04d}").replace(
-            "%y", f"{jalali.year % 100:02d}"
-        )
-        result = result.replace("%m", f"{jalali.month:02d}").replace(
-            "%d", f"{jalali.day:02d}"
-        )
-    if digits == "farsi":
-        return to_farsi_digits(result)
-    if digits != "latin":
-        raise ValueError("digits must be 'latin' or 'farsi'")
-    return result
+        jd = JDate(jalali.year, jalali.month, jalali.day, locale=FA_LOCALE)
+
+    result = jd.strftime(fmt)
+    return to_farsi_digits(result) if digits == "farsi" else result

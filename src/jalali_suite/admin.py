@@ -2,12 +2,12 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin import FieldListFilter
 from django.core.exceptions import FieldDoesNotExist
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from .forms import JalaliDateField
 from .models import JalaliDateField as ModelJalaliDateField
 from .models import JalaliDateTimeField
-from .settings import jalali_settings
 from .utils import format_jalali
 from .widgets import AdminJalaliDateWidget, AdminJalaliSplitDateTimeWidget
 
@@ -51,7 +51,12 @@ class JalaliDateAdminMixin:
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
         if isinstance(db_field, ModelJalaliDateField) and formfield:
-            formfield.widget = AdminJalaliDateWidget(attrs=formfield.widget.attrs)
+            # Don't forward attrs from the widget Django's own
+            # formfield_overrides handed back (plain AdminDateWidget): its
+            # "vDateField" class would re-attach Django's native calendar/
+            # "Today" shortcut, which writes a raw Gregorian date straight
+            # into a Jalali field, bypassing our widget entirely.
+            formfield.widget = AdminJalaliDateWidget()
         elif isinstance(db_field, JalaliDateTimeField) and formfield:
             formfield.widget = AdminJalaliSplitDateTimeWidget(
                 attrs=formfield.widget.attrs
@@ -63,29 +68,23 @@ class JalaliDateAdminMixin:
 
     def get_list_display(self, request):
         fields = list(super().get_list_display(request))
-        use_jalali_display = jalali_settings.get("ADMIN_AUTO_CONVERT_LIST_DISPLAY")
         for index, name in enumerate(fields):
             try:
                 field = self.opts.get_field(name)
             except (FieldDoesNotExist, TypeError):
                 continue
             if isinstance(field, (ModelJalaliDateField, JalaliDateTimeField)):
-                display_kind = "jalali" if use_jalali_display else "gregorian"
-                method_name = f"get_{display_kind}_{name}"
-                is_date_field = isinstance(field, ModelJalaliDateField)
+                method_name = f"get_jalali_{name}"
 
-                def display_value(
-                    obj,
-                    field_name=name,
-                    as_jalali=use_jalali_display,
-                    is_date=is_date_field,
-                ):
+                def display_value(obj, field_name=name):
                     value = getattr(obj, field_name)
                     if value is None:
                         return None
-                    if as_jalali:
-                        return format_jalali(value)
-                    return value.to_gregorian() if is_date else value.to_datetime()
+                    # Isolate from the surrounding page direction: admin
+                    # skins are often LTR, and a format mixing "/" with
+                    # RTL month/weekday/AM-PM words scrambles under the
+                    # bidi algorithm without this.
+                    return format_html("<bdi>{}</bdi>", format_jalali(value))
 
                 display_value.short_description = field.verbose_name
                 setattr(
