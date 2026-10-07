@@ -4,6 +4,8 @@ from django.core.signals import setting_changed
 DEFAULTS = {
     "DATE_FORMAT": "%Y/%m/%d",
     "DATETIME_FORMAT": "%Y/%m/%d %H:%M:%S",
+    # Show Jalali text for date columns in admin list_display and readonly fields.
+    "LIST_DISPLAY_AUTO_CONVERT": True,
 }
 
 

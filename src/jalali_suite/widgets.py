@@ -1,10 +1,10 @@
+import datetime as dt
+
+import jdatetime
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget, AdminTimeWidget
-from django.forms.utils import to_current_timezone
 
 from .utils import (
-    JalaliDate,
-    JalaliDateTime,
     to_farsi_digits,
     to_jalali,
     to_jalali_datetime,
@@ -39,17 +39,45 @@ class JalaliDateWidget(forms.DateInput):
         if value in (None, ""):
             return None
         try:
-            isoformat = to_jalali(value).isoformat
+            # A string here is what the user typed, so it is Jalali; only real
+            # date objects need converting.
+            if isinstance(value, str):
+                text = to_jalali(value, jalali=True).strftime("%Y-%m-%d")
+            else:
+                text = to_jalali(value).strftime("%Y-%m-%d")
         except (TypeError, ValueError):
             # Django re-renders a bound-but-invalid form with the raw
             # submitted string so the user can see and fix their typo;
             # echo it back unchanged rather than crashing on it.
             return value
-        return to_farsi_digits(isoformat) if uses_farsi_digits() else isoformat
+        return to_farsi_digits(text) if uses_farsi_digits() else text
 
 
 class AdminJalaliDateWidget(JalaliDateWidget, AdminDateWidget):
     pass
+
+
+class JalaliDateTimeWidget(forms.DateTimeInput):
+    """Single text input for a Jalali date and time, e.g. ``1403-01-01 15:30:00``."""
+
+    input_type = "text"
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        attrs["data-digits"] = "farsi" if uses_farsi_digits() else "latin"
+        return attrs
+
+    def format_value(self, value):
+        if value in (None, ""):
+            return None
+        try:
+            jvalue = to_jalali_datetime(
+                value, jalali=True if isinstance(value, str) else None
+            )
+        except (TypeError, ValueError):
+            return value  # re-rendering a rejected submission: echo it back
+        text = jvalue.strftime("%Y-%m-%d %H:%M:%S")
+        return to_farsi_digits(text) if uses_farsi_digits() else text
 
 
 class JalaliTimeWidget(forms.TimeInput):
@@ -80,19 +108,22 @@ class JalaliSplitDateTimeWidget(forms.MultiWidget):
     def decompress(self, value):
         if not value:
             return [None, None]
-        if isinstance(value, JalaliDateTime):
+        if isinstance(value, (dt.datetime, jdatetime.datetime)):
+            # Show wall-clock time in the current time zone.
+            jvalue = to_jalali_datetime(value)
             return [
-                f"{value.year:04d}-{value.month:02d}-{value.day:02d}",
-                value.to_datetime().time().replace(microsecond=0),
+                jvalue.strftime("%Y-%m-%d"),
+                jvalue.time().replace(microsecond=0),
             ]
-        value = to_current_timezone(value)
-        jvalue = to_jalali_datetime(value)
-        return [
-            f"{jvalue.year:04d}-{jvalue.month:02d}-{jvalue.day:02d}",
-            value.time().replace(microsecond=0),
-        ]
+        return [None, None]
 
 
 class AdminJalaliSplitDateTimeWidget(JalaliSplitDateTimeWidget):
     date_widget_class = AdminJalaliDateWidget
     time_widget_class = AdminJalaliTimeWidget
+
+
+# Names used by django-jalali-date and django-jalali.
+AdminSplitJalaliDateTime = AdminJalaliSplitDateTimeWidget
+jDateInput = JalaliDateWidget
+jDateTimeInput = JalaliDateTimeWidget

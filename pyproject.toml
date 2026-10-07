@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-jalali-suite"
-version = "3.0.0"
+version = "4.0.0"
 description = "Django utilities for Jalali/Persian calendar conversion, formatting, and form/model integrations."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,8 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Framework :: Django",
   "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
+  "Framework :: Django :: 6.1",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
@@ -29,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
   "Django>=5.2",
-  "jdatetime>=5.0.0",
+  "jdatetime>=6.1.0",
 ]
 
 [project.optional-dependencies]

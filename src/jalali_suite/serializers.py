@@ -1,12 +1,18 @@
-"""Django REST Framework fields for Jalali model values."""
+"""Django REST Framework fields for Jalali values.
+
+Input is Jalali (digits may be Persian or Arabic-Indic) and is cleaned to
+standard Gregorian ``date``/aware ``datetime`` objects; output is Jalali ISO
+text. ISO-like strings are read as Jalali when the year is below 1700 and as
+Gregorian otherwise, so a client that sends ``2024-03-20`` is never silently
+misread as the year 2024 of the Jalali calendar.
+"""
 
 from rest_framework import serializers
 
 from .models import JalaliDateField as ModelJalaliDateField
 from .models import JalaliDateTimeField as ModelJalaliDateTimeField
 from .utils import (
-    JalaliDate,
-    JalaliDateTime,
+    isoformat_jalali,
     normalize_digits,
     to_jalali,
     to_jalali_datetime,
@@ -14,37 +20,37 @@ from .utils import (
 
 
 class JalaliDateSerializerField(serializers.Field):
-    def to_internal_value(self, data):
-        from .forms import JalaliDateField
+    default_error_messages = {
+        "invalid": "Enter a valid Jalali date in YYYY-MM-DD format."
+    }
 
+    def to_internal_value(self, data):
         try:
-            return JalaliDateField().clean(normalize_digits(str(data)))
-        except Exception as error:
-            raise serializers.ValidationError(str(error)) from error
+            return to_jalali(normalize_digits(str(data))).togregorian()
+        except (TypeError, ValueError):
+            self.fail("invalid")
 
     def to_representation(self, value):
-        if isinstance(value, JalaliDate):
-            return value.isoformat
         if value in (None, ""):
             return value
-        return to_jalali(value).isoformat
+        return isoformat_jalali(to_jalali(value))
 
 
 class JalaliDateTimeSerializerField(serializers.Field):
-    def to_internal_value(self, data):
-        from .forms import JalaliDateTimeField
+    default_error_messages = {
+        "invalid": "Enter a valid Jalali datetime in YYYY-MM-DDTHH:MM[:SS] format."
+    }
 
+    def to_internal_value(self, data):
         try:
-            return JalaliDateTimeField().clean(normalize_digits(str(data)))
-        except Exception as error:
-            raise serializers.ValidationError(str(error)) from error
+            return to_jalali_datetime(normalize_digits(str(data))).togregorian()
+        except (TypeError, ValueError):
+            self.fail("invalid")
 
     def to_representation(self, value):
-        if isinstance(value, JalaliDateTime):
-            return value.isoformat
         if value in (None, ""):
             return value
-        return to_jalali_datetime(value).isoformat
+        return isoformat_jalali(value)
 
 
 class JalaliModelSerializer(serializers.ModelSerializer):
@@ -56,6 +62,10 @@ class JalaliModelSerializer(serializers.ModelSerializer):
     serializer_field_mapping[ModelJalaliDateField] = JalaliDateSerializerField
     serializer_field_mapping[ModelJalaliDateTimeField] = JalaliDateTimeSerializerField
 
+
+# Names used by django-jalali (django_jalali.serializers.serializerfield).
+JDateField = JalaliDateSerializerField
+JDateTimeField = JalaliDateTimeSerializerField
 
 __all__ = [
     "JalaliDateSerializerField",
