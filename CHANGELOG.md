@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.1.0
+
+### Added
+
+- `|gregorian` template filter: turns a Jalali value into the standard Gregorian date or datetime, so Django's own filters work on it for machine-readable output: `{{ post.created|gregorian|date:"c" }}` for `<time datetime>`, meta tags and feeds. Without it, `|date:"c"` and `.isoformat()` on a Jalali value print the Jalali year (`1403-…`).
+- `to_gregorian_value()` is now exported from `jalali_suite` and documented. It is the same conversion for Python code (JSON-LD, sitemaps, APIs).
+
 ## 4.0.0
 
 A breaking release that makes the package a drop-in replacement for

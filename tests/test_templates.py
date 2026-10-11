@@ -54,3 +54,23 @@ def test_digits_filter_overrides_site_language():
 def test_jalali_now_uses_the_current_time_zone():
     rendered = render("{% jalali_now '%Y' %}")
     assert rendered.isdigit() and 1400 <= int(rendered) < 1700
+
+
+def test_gregorian_filter_makes_machine_readable_dates():
+    jalali_value = jdatetime.datetime(1403, 1, 1, 12, 30, tzinfo=UTC)
+    # Shown in the current time zone (Tehran, +03:30), in the Gregorian calendar.
+    assert render("{{ value|gregorian|date:'c' }}", value=jalali_value) == "2024-03-20T16:00:00+03:30"
+
+
+def test_gregorian_filter_converts_dates_and_leaves_other_values_alone():
+    assert render("{{ value|gregorian|date:'Y-m-d' }}", value=jdatetime.date(1403, 1, 1)) == "2024-03-20"
+    standard = date(2024, 3, 20)
+    assert render("{{ value|gregorian|date:'Y-m-d' }}", value=standard) == "2024-03-20"
+    assert render("[{{ value|gregorian|default_if_none:'' }}]", value=None) == "[]"
+
+
+def test_to_gregorian_value_is_exported():
+    import jalali_suite
+
+    assert jalali_suite.to_gregorian_value(jdatetime.date(1403, 1, 1)) == date(2024, 3, 20)
+    assert jalali_suite.to_gregorian_value(None) is None

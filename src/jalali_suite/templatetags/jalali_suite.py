@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from ..query import jalali_dates
-from ..utils import format_jalali, to_farsi_digits, uses_farsi_digits
+from ..utils import format_jalali, to_farsi_digits, to_gregorian_value, uses_farsi_digits
 
 register = template.Library()
 
@@ -31,6 +31,17 @@ def jformat(value, fmt=None):
     if value in (None, ""):
         return ""
     return format_jalali(value, fmt)
+
+
+@register.filter
+def gregorian(value):
+    """A Jalali date or datetime as the standard Gregorian one (others unchanged).
+
+    Everything meant for machines (``<time datetime>``, meta tags, feeds, JSON) needs
+    the Gregorian calendar, and Django's ``|date`` prints a Jalali value wrongly. Put
+    this first: ``{{ post.created|gregorian|date:"c" }}``. Empty values stay empty.
+    """
+    return to_gregorian_value(value)
 
 
 @register.filter

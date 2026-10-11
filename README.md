@@ -212,6 +212,21 @@ and number weekdays from the wrong day. The package does not change Django's fil
 use `|jalali` / `{% jalali_date %}` for Jalali fields, and keep `|date` for ordinary dates.
 A bare `{{ order.created }}` prints the ISO value (`1403-01-01`) in every language.
 
+**For machines, convert to Gregorian first.** `<time datetime>`, meta tags, feeds, JSON-LD
+and sitemaps must carry standard dates, but `.isoformat()` (and `|date:"c"`) on a Jalali value
+prints the Jalali year. `|gregorian` returns the standard value, which Django's filters
+understand; in Python use `to_gregorian_value()`:
+
+```django
+<time datetime="{{ post.created|gregorian|date:'c' }}">{{ post.created|jalali:"%d %B %Y" }}</time>
+```
+
+```python
+from jalali_suite import to_gregorian_value
+
+to_gregorian_value(post.created).isoformat()   # 2024-03-20T12:30:00+03:30
+```
+
 Aware datetimes are shown in the current time zone. Digits follow the active
 language (Farsi digits when it starts with `fa`); override per call with `digits=`.
 `jformat` and `to_jalali` are accepted as aliases of `jalali`.
