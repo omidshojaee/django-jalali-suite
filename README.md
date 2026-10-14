@@ -8,11 +8,6 @@ code sees [`jdatetime`](https://pypi.org/project/jdatetime/) values that compare
 sort and subtract against standard `date` / `datetime` objects, keep their time
 zone, and agree with Django about local time.
 
-It is designed as a single replacement for
-[django-jalali](https://github.com/slashmili/django-jalali) +
-[django-jalali-date](https://github.com/a-roomana/django-jalali-date); see
-[Migrating](#migrating-from-django-jalali-and-django-jalali-date).
-
 ## The rule it follows
 
 You decide which fields are Jalali: declare them as `JalaliDateField` /
@@ -36,7 +31,7 @@ ISO string in every language. Only what the package *displays* follows the langu
 - **Query lookups**: `__year` (and `__year__gt/gte/lt/lte`) in the Jalali calendar, plus `jalali_range()` helpers for months and days
 - **Forms**: Jalali date, datetime and split date+time fields that clean to standard Gregorian values
 - **Admin**: Jalali datepicker widgets, Jalali list columns that stay sortable, read-only values, a Jalali date filter, Jalali `date_hierarchy`, inline support
-- **Templates**: the `jalali`, `jalali_digits`, `jalali_now`, `jalali_date` filters and tags (and `jformat` / `to_jalali` aliases)
+- **Templates**: the `jalali`, `jalali_digits`, `jalali_now`, `jalali_date` filters and tags
 - **Django REST Framework** serializer fields and `JalaliModelSerializer`
 - Persian / Arabic-Indic digit input and Farsi digit output, bundled Vazirmatn font, no JavaScript framework
 
@@ -185,7 +180,7 @@ What you get:
 - **list columns and read-only fields shown as Jalali text** (list columns remain sortable); switch off with `LIST_DISPLAY_AUTO_CONVERT`
 - a Jalali date filter (Today, Past 7 days, This month, This year using Jalali month and year boundaries), applied automatically to the suite's fields
 - **`date_hierarchy` drill-down by Jalali year, month and day**, in the right time zone, for the suite's fields and plain Django date columns alike. Django's own hierarchy would filter on Gregorian numbers, so a system check (`jalali_suite.W001`) warns if an admin uses a Jalali field with `date_hierarchy` but no `JalaliDateAdminMixin`. If you set your own `change_list_template`, put `{% load jalali_suite %}{% jalali_date_hierarchy cl %}` in its `date_hierarchy` block. Opt out with `jalali_date_hierarchy = False`
-- plain Django `DateField` / `DateTimeField` columns are **left alone**. To get the same treatment for them on one admin (for example when moving from django-jalali-date), set `jalali_widgets_for_gregorian_fields = True` on it; the date filter is then used explicitly: `list_filter = [("created", JalaliDateFieldListFilter)]`
+- plain Django `DateField` / `DateTimeField` columns are **left alone**. To get the same treatment for them on one admin, set `jalali_widgets_for_gregorian_fields = True` on it; the date filter is then used explicitly: `list_filter = [("created", JalaliDateFieldListFilter)]`
 - inline support: `JalaliDateTabularInline`, `JalaliDateStackedInline`, or the mixin on your own inline
 
 The datepicker needs no third-party JavaScript. Vazirmatn Regular is bundled
@@ -229,7 +224,6 @@ to_gregorian_value(post.created).isoformat()   # 2024-03-20T12:30:00+03:30
 
 Aware datetimes are shown in the current time zone. Digits follow the active
 language (Farsi digits when it starts with `fa`); override per call with `digits=`.
-`jformat` and `to_jalali` are accepted as aliases of `jalali`.
 
 ## Django REST Framework
 
@@ -257,42 +251,6 @@ JALALI_SUITE = {
     "LIST_DISPLAY_AUTO_CONVERT": True,  # Jalali text for admin list and read-only date fields
 }
 ```
-
-## Migrating from django-jalali and django-jalali-date
-
-| You used | Use now |
-|---|---|
-| `django_jalali.db.models.jDateField` / `jDateTimeField` | `jalali_suite.models.JalaliDateField` / `JalaliDateTimeField` (aliases `jDateField`, `jDateTimeField`) |
-| `django_jalali.admin.filters.JDateFieldListFilter` | `jalali_suite.admin.JalaliDateFieldListFilter` (alias `JDateFieldListFilter`) |
-| `jalali_date.admin.ModelAdminJalaliMixin` | `jalali_suite.admin.JalaliDateAdminMixin` (alias `ModelAdminJalaliMixin`) |
-| `TabularInlineJalaliMixin`, `StackedInlineJalaliMixin` | `JalaliDateTabularInline`, `JalaliDateStackedInline` (aliases for the mixin names exist) |
-| `django_jalali.db.models.jManager` / `jQuerySet` | not needed; `__year` and `__date` work with the default manager (`jManager` / `jQuerySet` are importable aliases of Django's `Manager` / `QuerySet`) |
-| `django_jalali.forms.jDateField` / `jDateTimeField` / `jDateInput` / `jDateTimeInput` | `jalali_suite.forms` and `jalali_suite.widgets`, same alias names |
-| `django_jalali.serializers.serializerfield.JDateField` / `JDateTimeField` | `jalali_suite.serializers` (same alias names) |
-| `jalali_date.fields.JalaliDateField`, `SplitJalaliDateTimeField` | `jalali_suite.forms.JalaliDateField`, `SplitJalaliDateTimeField` (takes `input_date_formats` / `input_time_formats`) |
-| `jalali_date.widgets.AdminJalaliDateWidget`, `AdminSplitJalaliDateTime` | `jalali_suite.widgets.AdminJalaliDateWidget`, `AdminJalaliSplitDateTimeWidget` (alias `AdminSplitJalaliDateTime`) |
-| `{{ v\|jformat:"..." }}` | same filter, after `{% load jalali_suite %}`; renders `""` for empty values as before |
-| `{{ v\|to_jalali:"..." }}`, `{% jalali_now %}` | same, rendering `-` for empty values as before; `jalali_now` now respects the time zone |
-| `jalali_admin_safe_readonly` filter and the `jalali_*` admin templates | not needed: read-only date fields are shown as Jalali by the admin mixin itself |
-| `datetime2jalali()`, `date2jalali()` | same names in `jalali_suite`; `None` in, `None` out |
-
-Settings:
-
-| You set | Use now |
-|---|---|
-| `JALALI_DATE_DEFAULTS["LIST_DISPLAY_AUTO_CONVERT"]` (default `False`) | `JALALI_SUITE["LIST_DISPLAY_AUTO_CONVERT"]` (default **`True`**); also controls read-only fields |
-| `JALALI_DATE_DEFAULTS["Strftime"]["date"]` / `["datetime"]` | `JALALI_SUITE["DATE_FORMAT"]` / `["DATETIME_FORMAT"]` |
-| `JALALI_DATE_DEFAULTS["Static"]`, `JALALI_SETTINGS["ADMIN_JS_STATIC_FILES"]` / `["ADMIN_CSS_STATIC_FILES"]` | **not supported**: the package ships its own datepicker (the django-jalali one used jQuery UI). Subclass the widgets and override `Media` to use another one |
-
-Things to know when switching:
-
-- **Migrations.** Existing migrations that reference `django_jalali.db.models.jDateField` must be edited to `jalali_suite.models.JalaliDateField`. No schema change is needed: the columns are the same.
-- **Lookups.** `__year` and `__date` work on the Jalali calendar (no custom manager needed). `__month`, `__day` and `__quarter` raise `FieldError`, as `__month` etc. also do in django-jalali; use `jalali_range()` with `__gte`/`__lt`.
-- **Form field return types.** Form fields return Gregorian `date` / aware `datetime` (as django-jalali-date does) so they work with any model field. django-jalali's `jDateField` form field returned a `jdatetime.date`; code that reads `cleaned_data` directly and relied on that should call `to_jalali()`. Saving through a `ModelForm` is unaffected.
-- **Date-only datetimes.** A datetime serializer or form input must include a time; django-jalali's `JDateTimeField` serializer also accepted a bare date.
-- **Plain date fields.** django-jalali-date's mixin put Jalali widgets on every date field. Here only the suite's own fields get them; add `jalali_widgets_for_gregorian_fields = True` to an admin to keep the old behaviour.
-- **List columns on by default.** Unlike django-jalali-date, the admin mixin converts the Jalali fields' list columns and read-only values unless you set `LIST_DISPLAY_AUTO_CONVERT` to `False`.
-- Remove `django_jalali` / `jalali_date` from `INSTALLED_APPS` and add `jalali_suite`.
 
 ## Development
 

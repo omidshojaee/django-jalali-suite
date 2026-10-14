@@ -139,8 +139,7 @@ class JalaliDateAdminMixin:
     columns (still sortable), read-only values, filters and ``date_hierarchy``.
     Plain Django ``DateField``/``DateTimeField`` columns are left alone, since
     they are not declared as Jalali; set
-    ``jalali_widgets_for_gregorian_fields = True`` to treat them the same way
-    (handy when moving over from django-jalali-date).
+    ``jalali_widgets_for_gregorian_fields = True`` to treat them the same way.
     """
 
     jalali_widgets_for_gregorian_fields = False
@@ -267,12 +266,3 @@ class JalaliDateTabularInline(JalaliDateAdminMixin, admin.TabularInline):
 
 class JalaliDateStackedInline(JalaliDateAdminMixin, admin.StackedInline):
     pass
-
-
-# Names used by django-jalali ...
-JDateFieldListFilter = JalaliDateFieldListFilter
-
-# ... and by django-jalali-date, so migrating projects need fewer edits.
-ModelAdminJalaliMixin = JalaliDateAdminMixin
-TabularInlineJalaliMixin = JalaliDateAdminMixin
-StackedInlineJalaliMixin = JalaliDateAdminMixin

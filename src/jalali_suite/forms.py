@@ -141,8 +141,3 @@ class SplitJalaliDateTimeField(forms.MultiValueField):
         date, time = data_list
         # The user typed wall-clock time, i.e. the current time zone.
         return _make_aware(dt.datetime.combine(date, time))
-
-
-# Names used by django-jalali (django_jalali.forms).
-jDateField = JalaliDateField
-jDateTimeField = JalaliDateTimeField

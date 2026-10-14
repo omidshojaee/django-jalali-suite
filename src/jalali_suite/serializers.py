@@ -62,11 +62,6 @@ class JalaliModelSerializer(serializers.ModelSerializer):
     serializer_field_mapping[ModelJalaliDateField] = JalaliDateSerializerField
     serializer_field_mapping[ModelJalaliDateTimeField] = JalaliDateTimeSerializerField
 
-
-# Names used by django-jalali (django_jalali.serializers.serializerfield).
-JDateField = JalaliDateSerializerField
-JDateTimeField = JalaliDateTimeSerializerField
-
 __all__ = [
     "JalaliDateSerializerField",
     "JalaliDateTimeSerializerField",

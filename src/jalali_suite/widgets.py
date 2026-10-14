@@ -121,9 +121,3 @@ class JalaliSplitDateTimeWidget(forms.MultiWidget):
 class AdminJalaliSplitDateTimeWidget(JalaliSplitDateTimeWidget):
     date_widget_class = AdminJalaliDateWidget
     time_widget_class = AdminJalaliTimeWidget
-
-
-# Names used by django-jalali-date and django-jalali.
-AdminSplitJalaliDateTime = AdminJalaliSplitDateTimeWidget
-jDateInput = JalaliDateWidget
-jDateTimeInput = JalaliDateTimeWidget

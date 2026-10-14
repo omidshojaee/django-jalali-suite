@@ -229,16 +229,6 @@ def to_gregorian_value(value):
     return value
 
 
-def date2jalali(g_date):
-    """django-jalali-date compatible: like :func:`to_jalali`, but ``None`` -> ``None``."""
-    return None if g_date is None else to_jalali(g_date)
-
-
-def datetime2jalali(g_date):
-    """django-jalali-date compatible: like :func:`to_jalali_datetime`, ``None`` -> ``None``."""
-    return None if g_date is None else to_jalali_datetime(g_date)
-
-
 # ---------------------------------------------------------------------------
 # Ranges
 # ---------------------------------------------------------------------------

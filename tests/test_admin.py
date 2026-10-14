@@ -10,9 +10,7 @@ from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
 
-from jalali_suite import admin as jalali_admin
 from jalali_suite.admin import (
-    JalaliDateAdminMixin,
     JalaliDateFieldListFilter,
     JalaliDateModelAdmin,
 )
@@ -72,12 +70,6 @@ def test_media_includes_scripts_styles_and_the_bundled_font():
     assert "jalali_suite/js/jalali-datepicker.js" in media._js
     assert "jalali_suite/css/jalali-datepicker.css" in media._css["all"]
     assert "jalali_suite/css/vazirmatn.css" in media._css["all"]
-
-
-def test_migration_aliases_exist():
-    assert jalali_admin.ModelAdminJalaliMixin is JalaliDateAdminMixin
-    assert jalali_admin.TabularInlineJalaliMixin is JalaliDateAdminMixin
-    assert jalali_admin.StackedInlineJalaliMixin is JalaliDateAdminMixin
 
 
 # --- list display -----------------------------------------------------------

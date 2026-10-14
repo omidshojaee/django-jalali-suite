@@ -1,4 +1,4 @@
-"""Behaviour that django-jalali and django-jalali-date users rely on."""
+"""Lookups, form fields, widgets and the admin's read-only handling."""
 
 from datetime import date, datetime
 from datetime import timezone as dt_timezone
@@ -7,22 +7,11 @@ import jdatetime
 import pytest
 from django import forms
 from django.contrib import admin
-from django.db import models
-from django.template import Context, Template
 from django.urls import reverse
 from django.utils import translation
 
-from jalali_suite import forms as jforms
-from jalali_suite import serializers as jserializers
 from jalali_suite import widgets
-from jalali_suite.forms import (
-    JalaliDateField,
-    JalaliDateTimeField,
-    SplitJalaliDateTimeField,
-)
-from jalali_suite.models import jDateField, jDateTimeField, jManager, jQuerySet
-from jalali_suite.models import JalaliDateField as ModelJalaliDateField
-from jalali_suite.models import JalaliDateTimeField as ModelJalaliDateTimeField
+from jalali_suite.forms import JalaliDateTimeField, SplitJalaliDateTimeField
 from tests.testapp.models import Event, Ledger, Plain
 
 UTC = dt_timezone.utc
@@ -34,11 +23,7 @@ def model_admin_for(model):
     return admin.site._registry[model]
 
 
-def render(source, **context):
-    return Template("{% load jalali_suite %}" + source).render(Context(context))
-
-
-# --- django-jalali: __date lookup -------------------------------------------
+# --- __date lookup ----------------------------------------------------------
 
 
 @pytest.mark.django_db
@@ -55,23 +40,7 @@ def test_date_lookup_accepts_jalali_values_and_uses_the_local_date():
     assert Event.objects.filter(at__date__year=1402).count() == 0
 
 
-def test_manager_aliases_are_plain_django_classes():
-    assert jManager is models.Manager and jQuerySet is models.QuerySet
-    assert jDateField is ModelJalaliDateField
-    assert jDateTimeField is ModelJalaliDateTimeField
-
-
-# --- django-jalali: forms, widgets, serializers -----------------------------
-
-
-def test_names_from_django_jalali_and_django_jalali_date_resolve():
-    assert jforms.jDateField is JalaliDateField
-    assert jforms.jDateTimeField is JalaliDateTimeField
-    assert widgets.jDateInput is widgets.JalaliDateWidget
-    assert widgets.jDateTimeInput is widgets.JalaliDateTimeWidget
-    assert widgets.AdminSplitJalaliDateTime is widgets.AdminJalaliSplitDateTimeWidget
-    assert jserializers.JDateField is jserializers.JalaliDateSerializerField
-    assert jserializers.JDateTimeField is jserializers.JalaliDateTimeSerializerField
+# --- forms and widgets ------------------------------------------------------
 
 
 def test_single_datetime_field_renders_a_jalali_text_input():
@@ -84,9 +53,6 @@ def test_single_datetime_field_renders_a_jalali_text_input():
         assert 'value="۱۴۰۳-۰۱-۰۱ ۱۵:۳۰:۰۰"' in widget.render("when", NOON_UTC)
 
 
-# --- django-jalali-date: split field formats, filters -----------------------
-
-
 def test_split_field_accepts_separate_input_formats():
     field = SplitJalaliDateTimeField(
         input_date_formats=["%d.%m.%Y"], input_time_formats=["%H.%M"]
@@ -96,15 +62,7 @@ def test_split_field_accepts_separate_input_formats():
         field.clean(["1403-01-01", "15:30:00"])
 
 
-def test_jformat_renders_empty_string_for_empty_values_like_django_jalali():
-    assert render("[{{ value|jformat }}]", value=None) == "[]"
-    assert render("[{{ value|jformat }}]", value="") == "[]"
-    assert render("{{ value|jformat:'%Y' }}", value=NOWRUZ_1403) == "1403"
-    # ... while to_jalali keeps django-jalali-date's "-".
-    assert render("{{ value|to_jalali }}", value=None) == "-"
-
-
-# --- django-jalali-date: readonly fields, LIST_DISPLAY_AUTO_CONVERT ---------
+# --- admin: readonly fields, LIST_DISPLAY_AUTO_CONVERT ----------------------
 
 
 @pytest.mark.django_db

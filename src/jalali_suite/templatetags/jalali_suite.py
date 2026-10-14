@@ -21,18 +21,6 @@ def jalali(value, fmt=None):
     return format_jalali(value, fmt)
 
 
-# django-jalali-date's name for the same filter (renders "-" for empty values).
-register.filter(name="to_jalali")(jalali)
-
-
-@register.filter(name="jformat")
-def jformat(value, fmt=None):
-    """django-jalali's filter: like ``jalali`` but renders "" for empty values."""
-    if value in (None, ""):
-        return ""
-    return format_jalali(value, fmt)
-
-
 @register.filter
 def gregorian(value):
     """A Jalali date or datetime as the standard Gregorian one (others unchanged).

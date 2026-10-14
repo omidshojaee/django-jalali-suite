@@ -7,8 +7,6 @@ import pytest
 from jalali_suite import (
     JalaliDate,
     JalaliDateTime,
-    date2jalali,
-    datetime2jalali,
     format_jalali,
     isoformat_jalali,
     jalali_datetime_range,
@@ -26,15 +24,6 @@ TEHRAN_OFFSET = timedelta(hours=3, minutes=30)  # tests run with TIME_ZONE=Asia/
 def test_public_types_are_jdatetime_subclasses():
     assert issubclass(JalaliDate, jdatetime.date)
     assert issubclass(JalaliDateTime, jdatetime.datetime)
-
-
-def test_jalali_date_aliases_return_none_for_none():
-    assert date2jalali(None) is None
-    assert datetime2jalali(None) is None
-    assert date2jalali(date(2024, 3, 20)) == jdatetime.date(1403, 1, 1)
-    assert datetime2jalali(datetime(2024, 3, 20, 12, 0, tzinfo=UTC)) == datetime(
-        2024, 3, 20, 12, 0, tzinfo=UTC
-    )
 
 
 # --- dates ------------------------------------------------------------------

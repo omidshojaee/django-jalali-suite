@@ -2,7 +2,6 @@ from datetime import date, datetime
 from datetime import timezone as dt_timezone
 
 import jdatetime
-import pytest
 from django.template import Context, Template
 from django.utils import translation
 
@@ -19,11 +18,10 @@ def test_filter_and_tag_use_site_language_for_digits():
     assert rendered == "۱۴۰۳/۰۱/۰۱ ۱۴۰۳/۰۱/۰۱"
 
 
-@pytest.mark.parametrize("name", ["jalali", "jformat", "to_jalali"])
-def test_filter_names_from_the_other_packages_work(name):
+def test_jalali_filter_formats_with_and_without_a_format():
     value = date(2024, 3, 20)
-    assert render("{{ value|%s:'%%Y/%%m/%%d' }}" % name, value=value) == "1403/01/01"
-    assert render("{{ value|%s }}" % name, value=value) == "1403/01/01"
+    assert render("{{ value|jalali:'%Y/%m/%d' }}", value=value) == "1403/01/01"
+    assert render("{{ value|jalali }}", value=value) == "1403/01/01"
 
 
 def test_tag_accepts_already_jalali_values_and_aware_datetimes():

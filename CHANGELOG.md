@@ -2,6 +2,10 @@
 
 ## 4.1.0
 
+### Removed
+
+- All compatibility names for django-jalali and django-jalali-date: `jDateField`, `jDateTimeField`, `jManager`, `jQuerySet`, `jDateInput`, `jDateTimeInput`, `JDateField`, `JDateTimeField`, `JDateFieldListFilter`, `ModelAdminJalaliMixin`, `TabularInlineJalaliMixin`, `StackedInlineJalaliMixin`, `AdminSplitJalaliDateTime`, `date2jalali()`, `datetime2jalali()`, and the `jformat` and `to_jalali` template filters. Use the `Jalali*` names and `|jalali`. The README migration section is gone too.
+
 ### Added
 
 - `|gregorian` template filter: turns a Jalali value into the standard Gregorian date or datetime, so Django's own filters work on it for machine-readable output: `{{ post.created|gregorian|date:"c" }}` for `<time datetime>`, meta tags and feeds. Without it, `|date:"c"` and `.isoformat()` on a Jalali value print the Jalali year (`1403-…`).

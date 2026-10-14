@@ -1,12 +1,10 @@
 """Jalali calendar support for Django."""
 
-__version__ = "4.1.0"
+__version__ = "4.2.0"
 
 from .utils import (
     JalaliDate,
     JalaliDateTime,
-    date2jalali,
-    datetime2jalali,
     format_jalali,
     isoformat_jalali,
     jalali_datetime_range,
@@ -22,8 +20,6 @@ from .utils import (
 __all__ = [
     "JalaliDate",
     "JalaliDateTime",
-    "date2jalali",
-    "datetime2jalali",
     "format_jalali",
     "isoformat_jalali",
     "jalali_datetime_range",

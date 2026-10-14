@@ -156,12 +156,3 @@ class JalaliTruncDate(TruncDate):
 register_lookups(JalaliDateField)
 register_lookups(JalaliDateTimeField)
 JalaliDateTimeField.register_lookup(JalaliTruncDate)
-
-# Names used by django-jalali, so migrating projects need fewer edits. The
-# ``jManager`` / ``jQuerySet`` of django-jalali only existed to make ``__year`` and
-# ``__date`` work; the lookups here need no special manager, so these are the
-# plain Django classes.
-jDateField = JalaliDateField
-jDateTimeField = JalaliDateTimeField
-jManager = models.Manager
-jQuerySet = models.QuerySet
